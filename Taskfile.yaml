@@ -1,0 +1,46 @@
+# https://taskfile.dev
+
+version: '3'
+
+# dotenv: [".env"]
+
+tasks:
+
+    ###################################################
+    # Config 
+    ###################################################
+    cluster_config:
+      desc: Apply global yaml manifests
+      cmds:
+      - kubectl apply --recursive --filename ./manifests/config
+
+    ###################################################
+    # Service Builds
+    ###################################################
+    build_one:
+        desc: Build and push the docker image for service_one
+        cmds: 
+        - docker build -t localhost:5001/go_kube_service_one:latest ./service_one
+        - docker push localhost:5001/go_kube_service_one:latest
+    build_two:
+        desc: Build and push the docker image for service_two
+        cmds: 
+        - docker build -t localhost:5001/go_kube_service_two:latest ./service_two
+        - docker push localhost:5001/go_kube_service_two:latest
+
+
+    ###################################################
+    # Service Deploy
+    ###################################################
+    deploy_one:
+        desc: Deploy service_one k8s yaml files
+        cmds: 
+        - kubectl apply -f ./manifests/service_one/deployment.yaml
+        - kubectl apply -f ./manifests/service_one/service.yaml
+        - kubectl apply -f ./manifests/service_one/ingress.yaml
+    deploy_two:
+        desc: Deploy service_two k8s yaml files
+        cmds: 
+        - kubectl apply -f ./manifests/service_two/deployment.yaml
+        - kubectl apply -f ./manifests/service_two/service.yaml
+        - kubectl apply -f ./manifests/service_two/ingress.yaml

@@ -1,0 +1,35 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: go-ingress
+  namespace: go-microservices
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  rules:
+  - host: localhost
+    http:
+      paths:
+      - pathType: Prefix
+        path: /service-one(/|$)(.*)
+        backend:
+          service:
+            name: service-one
+            port:
+              number: 80
+      - pathType: Prefix
+        path: /service-two(/|$)(.*)
+        backend:
+          service:
+            name: service-two
+            port:
+              number: 80
+      - pathType: Prefix
+        path: /testing/(.*)
+        backend:
+          service:
+            name: service-one
+            port:
+              number: 80

@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-one
+  namespace: go-microservices
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: service-one
+  template:
+    metadata:
+      labels:
+        app: service-one
+    spec:
+      containers:
+      - name: service-one
+        image: localhost:5001/go_kube_service_one:latest
+        ports:
+        - containerPort: 8080
