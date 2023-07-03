@@ -2,28 +2,33 @@
 
 version: '3'
 
-# dotenv: [".env"]
-
 tasks:
 
     ###################################################
     # Config 
     ###################################################
-    cluster_config:
-      desc: Apply global yaml manifests
+    apply-ingress:
+      desc: Apply NginX ingress
       cmds:
-      - kubectl apply -f ./manifests/config/namespace.yaml
       - kubectl apply -f ./manifests/config/ingress.yaml ## TODO : uncomment to use nginx ingress
+    
+    apply-namespaces:
+      desc: Apply custom namespaces
+      cmds:
+      - kubectl apply -f ./manifests/config/namespace-go.yaml
+      - kubectl apply -f ./manifests/config/namespace-contour.yaml
+      - kubectl apply -f ./manifests/config/namespace-mysql.yaml
+    
 
     ###################################################
     # Service Builds
     ###################################################
-    build_one:
+    build-one:
         desc: Build and push the docker image for service_one
         cmds: 
         - docker build -t localhost:5001/go_kube_service_one:latest ./service_one
         - docker push localhost:5001/go_kube_service_one:latest
-    build_two:
+    build-two:
         desc: Build and push the docker image for service_two
         cmds: 
         - docker build -t localhost:5001/go_kube_service_two:latest ./service_two
@@ -33,13 +38,67 @@ tasks:
     ###################################################
     # Service Deploy
     ###################################################
-    deploy_one:
+    deploy-one:
         desc: Deploy service_one k8s yaml files
         cmds: 
         - kubectl apply -f ./manifests/service_one/deployment.yaml
         - kubectl apply -f ./manifests/service_one/service.yaml
-    deploy_two:
+    deploy-two:
         desc: Deploy service_two k8s yaml files
         cmds: 
         - kubectl apply -f ./manifests/service_two/deployment.yaml
         - kubectl apply -f ./manifests/service_two/service.yaml
+
+    ###################################################
+    # Contour Helm
+    ###################################################
+    deploy-contour:
+        desc: Deploy Contour Ingress proxy
+        cmds: 
+        - helm install contour-ingress bitnami/contour --namespace projectcontour 
+
+    ###################################################
+    # MySQL Deployment
+    ###################################################
+    deploy-mysql:
+        desc: 
+        cmds: 
+        - kubectl apply -f ./manifests/mysql/secret.yaml
+        - kubectl apply -f ./manifests/mysql/mysql-storage.yaml
+        - kubectl apply -f ./manifests/mysql/service.yaml
+        - kubectl apply -f ./manifests/mysql/deployment.yaml
+
+    ###################################################
+    # MYSQL Migrator/Seeder Jobs
+    ###################################################
+    build-migrator:
+        desc: Build the SQL migrator job image
+        cmds: 
+        - docker build -t localhost:5001/go_migrator:latest ./migrations
+        - docker push localhost:5001/go_migrator:latest
+    deploy-migrator:
+        desc: Deploy migrator job
+        cmds: 
+        - kubectl apply -f ./manifests/migrator/job.yaml
+
+    build-seeder:
+        desc: Build the SQL seeder job image
+        cmds: 
+        - docker build -t localhost:5001/go_seeder:latest ./seeds
+        - docker push localhost:5001/go_seeder:latest
+    deploy-seeder:
+        desc: Deploy seeder job
+        cmds: 
+        - kubectl apply -f ./manifests/seeder/job.yaml
+
+    ###################################################
+    # Combined Cluster init
+    ###################################################
+    setup-cluster:
+        desc: Apply app manifests to cluster in sequence
+        cmds:
+        - task: apply-namespaces
+        - task: build-one
+        - task: deploy-one
+        - task: build-two
+        - task: deploy-two

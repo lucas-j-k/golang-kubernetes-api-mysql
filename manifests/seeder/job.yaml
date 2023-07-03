@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: goose-seeder
+  namespace: mysql-yaml
+spec:
+  ttlSecondsAfterFinished: 120 # automatically delete job, so it can be manually deployed again
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: goose-seeder
+          image: localhost:5001/go_seeder:latest
+          command: ["sh"] # alpine doesn't have bash  
+          args:
+          - -c
+          - goose -dir /app/seed-files -table _seeds mysql "$MYSQL_USER:$MYSQL_PASSWORD@tcp($MYSQL_HOST:$MYSQL_PORT)/$MYSQL_DATABASE?parseTime=True" up
+          env:
+          - name: MYSQL_USER
+            value: "root"
+          - name: MYSQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mysql-secret # our mysql-secret manifest
+                key: password
+          - name: MYSQL_DATABASE
+            value: "go-microservices-db"
+          - name: MYSQL_PORT
+            value: "3306"
+          - name: MYSQL_HOST
+            value: "mysql"
+
+
