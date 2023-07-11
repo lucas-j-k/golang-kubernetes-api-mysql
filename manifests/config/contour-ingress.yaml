@@ -5,23 +5,23 @@ metadata:
   namespace: go-microservices
 spec:
   virtualhost:
-    fqdn: localhost
+    fqdn: api.notes.localhost
   routes:
     - conditions:
-      - prefix: /one
+      - prefix: /user
+      services:
+        - name: user-service
+          port: 80
       pathRewritePolicy:
         replacePrefix:
-        - prefix: /one
+        - prefix: /user
           replacement: /
-      services:
-        - name: service-one
-          port: 80
     - conditions:
-      - prefix: /two
+      - prefix: /notes
       services:
-        - name: service-two
+        - name: note-service
           port: 80
       pathRewritePolicy:
         replacePrefix:
-        - prefix: /two
+        - prefix: /notes
           replacement: /

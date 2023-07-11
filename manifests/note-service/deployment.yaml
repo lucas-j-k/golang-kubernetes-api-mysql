@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: note-service
+  namespace: go-microservices
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: note-service
+  template:
+    metadata:
+      labels:
+        app: note-service
+    spec:
+      containers:
+      - name: note-service
+        image: localhost:5001/go_kube_notes_service:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: MYSQL_USER
+          value: "root"
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret # our mysql-secret manifest
+              key: password
+        - name: MYSQL_DATABASE
+          value: "go-microservices-db"
+        - name: MYSQL_PORT
+          value: "3306"
+        - name: MYSQL_HOST
+          value: "mysql.mysql-yaml.svc.cluster.local"
+        - name: REDIS_HOST
+          value: "redis"
+        - name: REDIS_PORT
+          value: "6379"
+        - name: REDIS_PASSWORD
+          value: ""

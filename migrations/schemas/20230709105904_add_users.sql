@@ -1,10 +1,12 @@
 -- +goose Up
 
 -- +goose StatementBegin
-CREATE TABLE website (
+CREATE TABLE user (
   id INT NOT NULL AUTO_INCREMENT,
-  domain VARCHAR(255) NOT NULL,
-  name VARCHAR(255) NOT NULL,
+  first_name VARCHAR(255) NOT NULL,
+  last_name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
   row_inserted TIMESTAMP NOT NULL,
   row_last_updated TIMESTAMP NULL,
   PRIMARY KEY(id)
@@ -12,7 +14,7 @@ CREATE TABLE website (
 -- +goose StatementEnd
 
 -- +goose Down
--- +goose StatementBegin
-DROP TABLE IF EXISTS website;
 
+-- +goose StatementBegin
+DROP TABLE IF EXISTS user;
 -- +goose StatementEnd

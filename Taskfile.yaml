@@ -7,47 +7,50 @@ tasks:
     ###################################################
     # Config 
     ###################################################
+    start-cluster:
+      desc: Start KinD cluster
+      cmds:
+      - bash ./bash/cluster-setup.sh
+    
     apply-ingress:
       desc: Apply NginX ingress
       cmds:
-      - kubectl apply -f ./manifests/config/ingress.yaml ## TODO : uncomment to use nginx ingress
+      - kubectl apply -f ./manifests/config/ingress.yaml
     
-    apply-namespaces:
-      desc: Apply custom namespaces
+    apply-config:
+      desc: Apply config setup manifests
       cmds:
       - kubectl apply -f ./manifests/config/namespace-go.yaml
-      - kubectl apply -f ./manifests/config/namespace-contour.yaml
       - kubectl apply -f ./manifests/config/namespace-mysql.yaml
+      - kubectl apply -f ./manifests/config/secret.yaml
     
-
     ###################################################
     # Service Builds
     ###################################################
-    build-one:
-        desc: Build and push the docker image for service_one
+    build-user:
+        desc: Build and push the docker image for user service
         cmds: 
-        - docker build -t localhost:5001/go_kube_service_one:latest ./service_one
-        - docker push localhost:5001/go_kube_service_one:latest
-    build-two:
-        desc: Build and push the docker image for service_two
+        - docker build -t localhost:5001/go_kube_user_service:latest ./user_service
+        - docker push localhost:5001/go_kube_user_service:latest
+    build-notes:
+        desc: Build and push the docker image for notes service
         cmds: 
-        - docker build -t localhost:5001/go_kube_service_two:latest ./service_two
-        - docker push localhost:5001/go_kube_service_two:latest
-
+        - docker build -t localhost:5001/go_kube_notes_service:latest ./notes_service
+        - docker push localhost:5001/go_kube_notes_service:latest
 
     ###################################################
     # Service Deploy
     ###################################################
-    deploy-one:
-        desc: Deploy service_one k8s yaml files
+    deploy-user:
+        desc: Deploy user service yaml files
         cmds: 
-        - kubectl apply -f ./manifests/service_one/deployment.yaml
-        - kubectl apply -f ./manifests/service_one/service.yaml
-    deploy-two:
-        desc: Deploy service_two k8s yaml files
+        - kubectl apply -f ./manifests/user-service/deployment.yaml
+        - kubectl apply -f ./manifests/user-service/service.yaml
+    deploy-notes:
+        desc: Deploy notes service yaml files
         cmds: 
-        - kubectl apply -f ./manifests/service_two/deployment.yaml
-        - kubectl apply -f ./manifests/service_two/service.yaml
+        - kubectl apply -f ./manifests/note-service/deployment.yaml
+        - kubectl apply -f ./manifests/note-service/service.yaml
 
     ###################################################
     # Contour Helm
@@ -55,18 +58,33 @@ tasks:
     deploy-contour:
         desc: Deploy Contour Ingress proxy
         cmds: 
-        - helm install contour-ingress bitnami/contour --namespace projectcontour 
+        - helm install my-release bitnami/contour --namespace projectcontour --create-namespace
+    deploy-routes:
+        desc: Deploy Contour Ingress routes
+        cmds: 
+        - kubectl apply -f manifests/config/contour-ingress.yaml
 
     ###################################################
     # MySQL Deployment
     ###################################################
-    deploy-mysql:
-        desc: 
+    deploy-mysql-storage:
+        desc: Deploy resources for mysql db
         cmds: 
-        - kubectl apply -f ./manifests/mysql/secret.yaml
         - kubectl apply -f ./manifests/mysql/mysql-storage.yaml
+    deploy-mysql:
+        desc: Deploy resources for mysql db
+        cmds: 
         - kubectl apply -f ./manifests/mysql/service.yaml
         - kubectl apply -f ./manifests/mysql/deployment.yaml
+
+    ###################################################
+    # Redis Deployment
+    ###################################################
+    deploy-redis:
+        desc: Deploy resources for redis cache
+        cmds: 
+        - kubectl apply -f ./manifests/redis/deployment.yaml
+        - kubectl apply -f ./manifests/redis/service.yaml
 
     ###################################################
     # MYSQL Migrator/Seeder Jobs
@@ -80,7 +98,6 @@ tasks:
         desc: Deploy migrator job
         cmds: 
         - kubectl apply -f ./manifests/migrator/job.yaml
-
     build-seeder:
         desc: Build the SQL seeder job image
         cmds: 
@@ -90,15 +107,12 @@ tasks:
         desc: Deploy seeder job
         cmds: 
         - kubectl apply -f ./manifests/seeder/job.yaml
-
-    ###################################################
-    # Combined Cluster init
-    ###################################################
-    setup-cluster:
-        desc: Apply app manifests to cluster in sequence
+    newmigration:
+        desc: Create a new migration file. Example - task newmigration -- add_new_cols
         cmds:
-        - task: apply-namespaces
-        - task: build-one
-        - task: deploy-one
-        - task: build-two
-        - task: deploy-two
+        - goose -dir ./migrations/schemas create {{.CLI_ARGS}} sql
+    newseed:
+        desc: Create a new seed file. Example - task newseed -- add_dummy_rows
+        cmds:
+        - goose -dir ./seeds/seed-files create {{.CLI_ARGS}} sql
+

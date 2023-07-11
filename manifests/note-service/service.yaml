@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: service-two
+  name: note-service
   namespace: go-microservices
 spec:
   selector:
-    app: service-two
+    app: note-service
   ports:
     - port: 80
       targetPort: 8080

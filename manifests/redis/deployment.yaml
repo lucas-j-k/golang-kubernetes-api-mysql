@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: service-one
+  name: redis
   namespace: go-microservices
 spec:
-  replicas: 1
   selector:
     matchLabels:
-      app: service-one
+      app: redis
+  replicas: 1
   template:
     metadata:
       labels:
-        app: service-one
+        app: redis
     spec:
       containers:
-      - name: service-one
-        image: localhost:5001/go_kube_service_one:latest
+      - image: redis:7-alpine
+        name: redis
         ports:
-        - containerPort: 8080
+        - containerPort: 6379
