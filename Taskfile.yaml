@@ -42,6 +42,10 @@ tasks:
         desc: Deploy Contour Ingress proxy
         cmds: 
         - helm install my-release bitnami/contour --namespace projectcontour
+    check-contour:
+        desc: Check Contour resources are running and healthy
+        cmds: 
+        - kubectl -n projectcontour get po,svc
     deploy-routes:
         desc: Deploy Contour Ingress routes
         cmds: 

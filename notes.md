@@ -1,29 +1,25 @@
-# go cluster test env
+## Setting up cluster and applying resources
+- task start-cluster (creates Kind Cluster)
+- task apply-config (creates namespaces)
+- task deploy-mysql-storage
+- task deploy-mysql
+- task deploy-redis
+- task deploy-api (deploys the actual app container)
+- task deploy-contour
+- task deploy-routes
+- task deploy-migrator   (mysql needs to be running)
 
-### setting up
-- run ./bash/cluster-setup.sh to init a kind cluster with the registry attached
-- registry runs at localhost:5001.
-- Taskfile contains scripts to build and push the service images to the registry on :5001.
-- go images are just alpine + binary so are small.
+# Contour Ingress
+- simple router, alternative to the nginx ingress.
+- creates HttpProxy resources to route traffic to services
+- accepts external traffic, routes to internal services.
+- setup with kind:
+setting up a valid kind cluster with config:
+https://projectcontour.io/docs/1.25/guides/kind/
+- the kind config adds extra port mappings to allow us to route traffic into the cluster without the load balancer ingress type - kind doesn't expose a load balancer. Kind config with extra port mappings is in ```./bash/cluster-setup.sh```
 
-ok so after the ingress etc.. has been applied, and the go service_one has been deployed, we can access the service one endpoint at localhost/ping  (default port 80 used by browser)
+## MySQL
+- MySQL deployed with a Persistent Volume Claim and Persistent Volume for storage
 
-
-now we need to set it up so that we can route to different containers based on different urls
-
-
-
-Things to add
-- 2 other microservices
-- configmap
-- loggin - prometheus
-- kubernetes-dashboard
-- redis?
-- proper apigateway?
-- custom operator??
-- cronjob
-- database?
-- some kind of frontend?
-- kubernetes security stuff? rbac?
-- tilt?
-
+## SQL migrations
+- SQL migrations are deployed as a simple K8s job which deploys a container to run Goose migrations.

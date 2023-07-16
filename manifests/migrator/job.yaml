@@ -4,7 +4,7 @@ metadata:
   name: goose-migrator
   namespace: go-microservices
 spec:
-  ttlSecondsAfterFinished: 120 # automatically delete job, so it can be manually deployed again
+  ttlSecondsAfterFinished: 120 # automatically delete job, so it can be manually deployed again if needed
   template:
     spec:
       restartPolicy: Never
@@ -21,7 +21,7 @@ spec:
           - name: MYSQL_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: mysql-secret # our mysql-secret manifest
+                name: mysql-secret
                 key: password
           - name: MYSQL_DATABASE
             value: "go-microservices-db"
