@@ -42,6 +42,7 @@ func main() {
 
 	// initialize Database connection and database services
 	dataSourceName := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?parseTime=True", sqlUser, sqlPass, sqlHost, sqlPort, sqlDB)
+	fmt.Println(dataSourceName)
 	connection := sqlx.MustConnect("mysql", dataSourceName)
 
 	noteService := notes.NoteService{

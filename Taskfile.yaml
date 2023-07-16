@@ -11,12 +11,6 @@ tasks:
       desc: Start KinD cluster
       cmds:
       - bash ./bash/cluster-setup.sh
-    
-    apply-ingress:
-      desc: Apply NginX ingress
-      cmds:
-      - kubectl apply -f ./manifests/config/ingress.yaml
-    
     apply-config:
       desc: Apply config setup manifests
       cmds:
@@ -33,7 +27,7 @@ tasks:
         - docker push localhost:5001/go_kube_api_service:latest
 
     ###################################################
-    # Service Deploy
+    # API Deploy
     ###################################################
     deploy-api:
         desc: Deploy api server yaml files
