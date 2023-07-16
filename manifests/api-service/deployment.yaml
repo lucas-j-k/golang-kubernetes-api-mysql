@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: note-service
+  name: api-svc
   namespace: go-microservices
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: note-service
+      app: api-svc
   template:
     metadata:
       labels:
-        app: note-service
+        app: api-svc
     spec:
       containers:
-      - name: note-service
-        image: localhost:5001/go_kube_notes_service:latest
+      - name: api-svc
+        image: localhost:5001/go_kube_api_service:latest
         ports:
         - containerPort: 8080
         env:
@@ -31,7 +31,7 @@ spec:
         - name: MYSQL_PORT
           value: "3306"
         - name: MYSQL_HOST
-          value: "mysql.mysql-yaml.svc.cluster.local"
+          value: "mysql"
         - name: REDIS_HOST
           value: "redis"
         - name: REDIS_PORT

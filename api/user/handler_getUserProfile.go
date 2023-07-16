@@ -3,8 +3,9 @@ package user
 import (
 	"net/http"
 
+	"github.com/lucas-j-k/kube-go-api/httpTools"
+
 	"github.com/go-chi/render"
-	"github.com/lucas-j-k/kube-go-microservices/user-service/httpTools"
 )
 
 // GetUserProfile returns the profile info for the current logged in user

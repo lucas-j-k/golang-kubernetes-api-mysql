@@ -3,14 +3,16 @@ package user
 import (
 	"net/http"
 
+	"github.com/lucas-j-k/kube-go-api/authTools"
+	"github.com/lucas-j-k/kube-go-api/httpTools"
+
 	"github.com/go-chi/render"
 	"github.com/gofrs/uuid"
-	"github.com/lucas-j-k/kube-go-microservices/user-service/httpTools"
 )
 
 // Login checks incoming user details against the stored Email + PasswordHash and sets a session if valid.
 // SessionID is written into a http-only cookie
-func Login(service *UserService, sessionManager SessionManager) http.HandlerFunc {
+func Login(service *UserService, sessionManager authTools.SessionManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		ctx := r.Context()
@@ -54,7 +56,7 @@ func Login(service *UserService, sessionManager SessionManager) http.HandlerFunc
 		}
 
 		// Generate new session contents
-		session := UserSession{
+		session := authTools.UserSession{
 			UserID: user.Id,
 		}
 
@@ -66,7 +68,7 @@ func Login(service *UserService, sessionManager SessionManager) http.HandlerFunc
 		}
 
 		// Set the session ID in the server-side cookie
-		SetAuthCookie(sessionId.String(), w)
+		authTools.SetAuthCookie(sessionId.String(), w)
 
 		render.Status(r, http.StatusOK)
 		render.JSON(w, r, nil)

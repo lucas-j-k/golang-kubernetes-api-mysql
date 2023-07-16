@@ -3,8 +3,9 @@ package user
 import (
 	"net/http"
 
+	"github.com/lucas-j-k/kube-go-api/httpTools"
+
 	"github.com/go-chi/render"
-	"github.com/lucas-j-k/kube-go-microservices/user-service/httpTools"
 )
 
 // Signup inserts a new user record into the DB

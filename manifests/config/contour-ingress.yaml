@@ -8,20 +8,7 @@ spec:
     fqdn: api.notes.localhost
   routes:
     - conditions:
-      - prefix: /user
+      - prefix: /
       services:
-        - name: user-service
+        - name: api-svc
           port: 80
-      pathRewritePolicy:
-        replacePrefix:
-        - prefix: /user
-          replacement: /
-    - conditions:
-      - prefix: /notes
-      services:
-        - name: note-service
-          port: 80
-      pathRewritePolicy:
-        replacePrefix:
-        - prefix: /notes
-          replacement: /

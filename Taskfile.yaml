@@ -20,37 +20,26 @@ tasks:
     apply-config:
       desc: Apply config setup manifests
       cmds:
-      - kubectl apply -f ./manifests/config/namespace-go.yaml
-      - kubectl apply -f ./manifests/config/namespace-mysql.yaml
+      - kubectl apply -f ./manifests/config/namespaces.yaml
       - kubectl apply -f ./manifests/config/secret.yaml
     
     ###################################################
-    # Service Builds
+    # API Build
     ###################################################
-    build-user:
-        desc: Build and push the docker image for user service
+    build-api:
+        desc: Build and push the docker image for backend API server
         cmds: 
-        - docker build -t localhost:5001/go_kube_user_service:latest ./user_service
-        - docker push localhost:5001/go_kube_user_service:latest
-    build-notes:
-        desc: Build and push the docker image for notes service
-        cmds: 
-        - docker build -t localhost:5001/go_kube_notes_service:latest ./notes_service
-        - docker push localhost:5001/go_kube_notes_service:latest
+        - docker build -t localhost:5001/go_kube_api_service:latest ./api
+        - docker push localhost:5001/go_kube_api_service:latest
 
     ###################################################
     # Service Deploy
     ###################################################
-    deploy-user:
-        desc: Deploy user service yaml files
+    deploy-api:
+        desc: Deploy api server yaml files
         cmds: 
-        - kubectl apply -f ./manifests/user-service/deployment.yaml
-        - kubectl apply -f ./manifests/user-service/service.yaml
-    deploy-notes:
-        desc: Deploy notes service yaml files
-        cmds: 
-        - kubectl apply -f ./manifests/note-service/deployment.yaml
-        - kubectl apply -f ./manifests/note-service/service.yaml
+        - kubectl apply -f ./manifests/api-service/deployment.yaml
+        - kubectl apply -f ./manifests/api-service/service.yaml
 
     ###################################################
     # Contour Helm
@@ -58,7 +47,7 @@ tasks:
     deploy-contour:
         desc: Deploy Contour Ingress proxy
         cmds: 
-        - helm install my-release bitnami/contour --namespace projectcontour --create-namespace
+        - helm install my-release bitnami/contour --namespace projectcontour
     deploy-routes:
         desc: Deploy Contour Ingress routes
         cmds: 
@@ -87,7 +76,7 @@ tasks:
         - kubectl apply -f ./manifests/redis/service.yaml
 
     ###################################################
-    # MYSQL Migrator/Seeder Jobs
+    # MYSQL Migrator Job
     ###################################################
     build-migrator:
         desc: Build the SQL migrator job image
@@ -98,21 +87,8 @@ tasks:
         desc: Deploy migrator job
         cmds: 
         - kubectl apply -f ./manifests/migrator/job.yaml
-    build-seeder:
-        desc: Build the SQL seeder job image
-        cmds: 
-        - docker build -t localhost:5001/go_seeder:latest ./seeds
-        - docker push localhost:5001/go_seeder:latest
-    deploy-seeder:
-        desc: Deploy seeder job
-        cmds: 
-        - kubectl apply -f ./manifests/seeder/job.yaml
     newmigration:
         desc: Create a new migration file. Example - task newmigration -- add_new_cols
         cmds:
         - goose -dir ./migrations/schemas create {{.CLI_ARGS}} sql
-    newseed:
-        desc: Create a new seed file. Example - task newseed -- add_dummy_rows
-        cmds:
-        - goose -dir ./seeds/seed-files create {{.CLI_ARGS}} sql
 

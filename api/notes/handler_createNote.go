@@ -1,10 +1,10 @@
-package note
+package notes
 
 import (
 	"net/http"
 
 	"github.com/go-chi/render"
-	"github.com/lucas-j-k/kube-go-microservices/notes-service/httpTools"
+	"github.com/lucas-j-k/kube-go-api/httpTools"
 )
 
 // Signup inserts a new user record into the DB

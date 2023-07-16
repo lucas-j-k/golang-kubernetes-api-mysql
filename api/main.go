@@ -9,7 +9,9 @@ import (
 	"github.com/go-chi/render"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
-	note "github.com/lucas-j-k/kube-go-microservices/notes-service/notes"
+	"github.com/lucas-j-k/kube-go-api/authTools"
+	"github.com/lucas-j-k/kube-go-api/notes"
+	"github.com/lucas-j-k/kube-go-api/user"
 	"github.com/redis/go-redis/v9"
 	"github.com/rs/cors"
 	"github.com/spf13/viper"
@@ -39,12 +41,14 @@ func main() {
 	})
 
 	// initialize Database connection and database services
-	fmt.Println("Trying to connect to SQL")
 	dataSourceName := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?parseTime=True", sqlUser, sqlPass, sqlHost, sqlPort, sqlDB)
 	connection := sqlx.MustConnect("mysql", dataSourceName)
-	fmt.Println("After sql connection")
 
-	noteService := note.NoteService{
+	noteService := notes.NoteService{
+		Db: connection,
+	}
+
+	userService := user.UserService{
 		Db: connection,
 	}
 
@@ -55,7 +59,7 @@ func main() {
 		DB:       0,                            // use default DB
 	})
 
-	redisSessionManager := note.RedisSessionManager{
+	redisSessionManager := authTools.RedisSessionManager{
 		Client: redisClient,
 	}
 
@@ -66,16 +70,26 @@ func main() {
 	r.Use(c.Handler)
 
 	// initialise custom middleware. This is in an interface so we can inject our redis session manager
-	cacheMiddleware := note.CacheMiddleware{SessionManager: &redisSessionManager}
+	cacheMiddleware := authTools.CacheMiddleware{SessionManager: &redisSessionManager}
 
 	// Routes protected behind the sessionGuard middleware
-	r.Route("/", func(r chi.Router) {
+	r.Route("/notes", func(r chi.Router) {
 		r.Use(cacheMiddleware.SessionGuard)
-		r.Get("/", note.ListNotesForUser(&noteService))
-		r.Post("/", note.CreateNote(&noteService))
+		r.Get("/", notes.ListNotesForUser(&noteService))
+		r.Post("/", notes.CreateNote(&noteService))
 		// TODO ::  DEL /{id} delete note
 		// TODO :: PUT /{id} update note
 	})
+
+	// protected test - delete this, replace with a user profile GET
+	r.Route("/user/admin", func(r chi.Router) {
+		r.Use(cacheMiddleware.SessionGuard)
+		r.Get("/profile", user.GetUserProfile(&userService))
+	})
+
+	r.Post("/user/signup", user.Signup(&userService))
+	r.Post("/user/login", user.Login(&userService, redisSessionManager))
+	r.Post("/user/logout", user.Logout(&userService, redisSessionManager))
 
 	// Healthcheck endpoint
 	r.Get("/ping", func(w http.ResponseWriter, r *http.Request) {

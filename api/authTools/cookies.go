@@ -1,17 +1,15 @@
-package note
+package authTools
 
 import (
 	"net/http"
 	"time"
 )
 
-// TODO :: move this all into a separate module
-
 // SetAuthCookie writes a sessionId into a http-only cookie
 func SetAuthCookie(sessionId string, w http.ResponseWriter) {
 	cookie := http.Cookie{
 		Name:     "user-session",
-		Domain:   ".links.localhost",
+		Domain:   ".notes.localhost",
 		Value:    sessionId,
 		Path:     "/",
 		HttpOnly: true,
@@ -24,7 +22,7 @@ func SetAuthCookie(sessionId string, w http.ResponseWriter) {
 func ClearAuthCookie(w http.ResponseWriter) {
 	cookie := http.Cookie{
 		Name:     "user-session",
-		Domain:   ".links.localhost",
+		Domain:   ".notes.localhost",
 		Value:    "",
 		Path:     "/",
 		HttpOnly: true,

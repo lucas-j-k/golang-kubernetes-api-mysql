@@ -1,11 +1,11 @@
-package note
+package notes
 
 import (
-	"fmt"
 	"net/http"
 
+	"github.com/lucas-j-k/kube-go-api/httpTools"
+
 	"github.com/go-chi/render"
-	"github.com/lucas-j-k/kube-go-microservices/notes-service/httpTools"
 )
 
 // ListNotesForUser returns all notes for the current logged in user
@@ -20,7 +20,6 @@ func ListNotesForUser(service *NoteService) http.HandlerFunc {
 		})
 
 		if err != nil {
-			fmt.Printf("ERR %v \n\n", err)
 			render.Render(w, r, httpTools.ErrInternalServer())
 			return
 		}

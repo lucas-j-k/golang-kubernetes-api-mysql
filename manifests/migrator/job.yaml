@@ -2,7 +2,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: goose-migrator
-  namespace: mysql-yaml
+  namespace: go-microservices
 spec:
   ttlSecondsAfterFinished: 120 # automatically delete job, so it can be manually deployed again
   template:

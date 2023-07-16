@@ -1,6 +1,3 @@
 go 1.19
 
-use (
-	./user_service
-	./notes_service
-)
+use ./api

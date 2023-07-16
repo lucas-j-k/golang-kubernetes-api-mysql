@@ -1,4 +1,4 @@
-module github.com/lucas-j-k/kube-go-microservices/user-service
+module github.com/lucas-j-k/kube-go-api
 
 go 1.19
 
@@ -12,7 +12,7 @@ require (
 	github.com/redis/go-redis/v9 v9.0.5
 	github.com/rs/cors v1.9.0
 	github.com/spf13/viper v1.16.0
-	golang.org/x/crypto v0.9.0
+	golang.org/x/crypto v0.11.0
 )
 
 require (
@@ -34,8 +34,8 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.4.2 // indirect
 	golang.org/x/net v0.10.0 // indirect
-	golang.org/x/sys v0.8.0 // indirect
-	golang.org/x/text v0.9.0 // indirect
+	golang.org/x/sys v0.10.0 // indirect
+	golang.org/x/text v0.11.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
