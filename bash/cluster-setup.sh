@@ -1,7 +1,9 @@
 #!/bin/sh
 set -o errexit
 
+######################################################################
 # create registry container unless it already exists
+######################################################################
 reg_name='kind-registry'
 reg_port='5001'
 if [ "$(docker inspect -f '{{.State.Running}}' "${reg_name}" 2>/dev/null || true)" != 'true' ]; then
@@ -10,8 +12,10 @@ if [ "$(docker inspect -f '{{.State.Running}}' "${reg_name}" 2>/dev/null || true
     registry:2
 fi
 
-# create a cluster with the local registry enabled in containerd
+######################################################################
+# create a cluster with the local registry enabled in container
 # passes the config inline rather than using a kind.config file
+######################################################################
 cat <<EOF | kind create cluster --config=-
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
@@ -31,13 +35,17 @@ containerdConfigPatches:
     endpoint = ["http://${reg_name}:5000"]
 EOF
 
+######################################################################
 # connect the registry to the cluster network if not already connected
+######################################################################
 if [ "$(docker inspect -f='{{json .NetworkSettings.Networks.kind}}' "${reg_name}")" = 'null' ]; then
   docker network connect "kind" "${reg_name}"
 fi
 
+######################################################################
 # Document the local registry
 # https://github.com/kubernetes/enhancements/tree/master/keps/sig-cluster-lifecycle/generic/1755-communicating-a-local-registry
+######################################################################
 cat <<EOF | kubectl apply -f -
 apiVersion: v1
 kind: ConfigMap

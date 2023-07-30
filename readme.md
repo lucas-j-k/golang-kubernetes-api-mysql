@@ -22,4 +22,4 @@ https://projectcontour.io/docs/1.25/guides/kind/
 - MySQL deployed with a Persistent Volume Claim and Persistent Volume for storage
 
 ## SQL migrations
-- SQL migrations are deployed as a simple K8s job which deploys a container to run Goose migrations.
+- SQL migrations are deployed as a simple K8s job which deploys an ephemeral container to run Goose migrations. There is a TTL defined on the job so it deletes itself after running
